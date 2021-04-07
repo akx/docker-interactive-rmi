@@ -1,0 +1,13 @@
+{
+  "name": "docker-interactive-rmi",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Aarni Koskela",
+  "license": "MIT",
+  "dependencies": {
+    "enquirer": "^2.3.6"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  }
+}
