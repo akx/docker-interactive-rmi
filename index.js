@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { execFile, spawn } = require("child_process");
 const { promisify } = require("util");
 const { Select } = require("enquirer");
