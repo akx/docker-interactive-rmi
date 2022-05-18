@@ -29,6 +29,14 @@ function formatImage(image, nameLength) {
   return `${namePadded} ${sizePadded} ${datePadded}`;
 }
 
+async function getDockerJSONLines(args) {
+  const { stdout } = await execFileP("docker", args, { shell: true });
+  return stdout
+    .split("\n")
+    .filter((s) => s)
+    .map((s) => JSON.parse(s));
+}
+
 class SelectWithoutDump extends Select {
   format() {
     return `${this.selected.length} images`;
@@ -36,20 +44,12 @@ class SelectWithoutDump extends Select {
 }
 
 async function promptImageIds() {
-  const { stdout } = await execFileP(
-    "docker",
-    ["images", "--format='{{json .}}'", "--no-trunc"],
-    { shell: true }
-  );
-  const images = stdout
-    .split("\n")
-    .filter((s) => s)
-    .map((s) => JSON.parse(s));
-
-  const nameLength = Math.max.apply(
-    null,
-    images.map((i) => formatName(i, true).length)
-  );
+  const images = await getDockerJSONLines([
+    "images",
+    "--format='{{json .}}'",
+    "--no-trunc",
+  ]);
+  const nameLength = Math.max(...images.map((i) => formatName(i, true).length));
   const prompt = new SelectWithoutDump({
     name: "images",
     multiple: true,
@@ -75,7 +75,7 @@ async function main() {
   if (!imageIds.length) {
     return;
   }
-  await spawnP("docker", ["rmi", "-f"].concat(imageIds), {
+  await spawnP("docker", ["rmi", "-f", ...imageIds], {
     shell: true,
     stdio: "inherit",
   });
